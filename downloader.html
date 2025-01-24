@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+
+{% block title %}Track Info{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Get Track Information</h2>
+            </div>
+            <div class="card-body">
+                <form id="track-form">
+                    <div class="form-group mb-3">
+                        <label for="spotify_url">Spotify Track URL:</label>
+                        <input type="url" class="form-control" id="spotify_url" name="spotify_url" 
+                               placeholder="https://open.spotify.com/track/..." required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Get Info</button>
+                </form>
+
+                <div id="result" class="mt-4" style="display: none;">
+                    <div class="card">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img id="track-cover" src="" class="img-fluid rounded-start" alt="Album Cover">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title" id="track-name"></h5>
+                                    <p class="card-text" id="track-artist"></p>
+                                    <p class="card-text" id="track-album"></p>
+                                    <p class="card-text" id="track-duration"></p>
+                                    <audio id="preview-audio" controls class="w-100" style="display: none;">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('track-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const url = document.getElementById('spotify_url').value;
+    
+    fetch('/get-track-info', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `spotify_url=${encodeURIComponent(url)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
+        }
+        
+        document.getElementById('track-cover').src = data.cover_url;
+        document.getElementById('track-name').textContent = data.name;
+        document.getElementById('track-artist').textContent = `Artist: ${data.artist}`;
+        document.getElementById('track-album').textContent = `Album: ${data.album}`;
+        document.getElementById('track-duration').textContent = 
+            `Duration: ${Math.floor(data.duration / 60)}:${(data.duration % 60).toString().padStart(2, '0')}`;
+        
+        const audioElement = document.getElementById('preview-audio');
+        if (data.preview_url) {
+            audioElement.src = data.preview_url;
+            audioElement.style.display = 'block';
+        } else {
+            audioElement.style.display = 'none';
+        }
+        
+        document.getElementById('result').style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching track information.');
+    });
+});
+</script>
+{% endblock %}
