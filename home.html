@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to Spotify Track Info</h1>
+    <p class="lead">Get detailed information about your favorite Spotify tracks</p>
+    <hr class="my-4">
+    <p>Simply paste a Spotify track URL and get all the details!</p>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('downloader') }}" role="button">Get Started</a>
+</div>
+{% endblock %}
